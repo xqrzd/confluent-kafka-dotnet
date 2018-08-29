@@ -29,7 +29,7 @@ namespace Confluent.Kafka.UnitTests.Serialization
         {
             foreach (var value in TestData)
             {
-                Assert.Equal(value, new DoubleDeserializer().Deserialize(null, new DoubleSerializer().Serialize(null, value), false));
+                Assert.Equal(value, new DoubleDeserializer().Deserialize(null, new DoubleSerializer().Serialize(null, value).Memory.Span, false));
             }
         }
 
@@ -38,7 +38,7 @@ namespace Confluent.Kafka.UnitTests.Serialization
         {
             var buffer = new byte[] { 23, 0, 0, 0, 0, 0, 0, 0 };
             var value = BitConverter.ToDouble(buffer, 0);
-            var data = new DoubleSerializer().Serialize(null, value);
+            var data = new DoubleSerializer().Serialize(null, value).Memory.Span;
             Assert.Equal(23, data[7]);
             Assert.Equal(0, data[0]);
         }

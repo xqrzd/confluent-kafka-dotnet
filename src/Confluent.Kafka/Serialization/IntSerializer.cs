@@ -15,6 +15,7 @@
 // Refer to LICENSE for more information.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 
@@ -37,7 +38,7 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     The <see cref="System.Int32"/> value <paramref name="data" /> encoded as a byte array of length 4 (network byte order).
         /// </returns>
-        public byte[] Serialize(string topic, int data)
+        public IMemoryOwner<byte> Serialize(string topic, int data)
         {
             var result = new byte[4]; // int is always 32 bits on .NET.
             // network byte order -> big endian -> most significant byte in the smallest address.
@@ -48,7 +49,7 @@ namespace Confluent.Kafka.Serialization
             result[1] = (byte)(data >> 16); // & 0xff;
             result[2] = (byte)(data >> 8); // & 0xff;
             result[3] = (byte)data; // & 0xff;
-            return result;
+            return new ByteMemoryOwner(result);
         }
 
 

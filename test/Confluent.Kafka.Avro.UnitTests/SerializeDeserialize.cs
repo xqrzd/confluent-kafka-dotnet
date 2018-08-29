@@ -50,8 +50,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<int>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, 123);
+            var bytes = avroSerializer.Serialize(testTopic, 123).Memory.Span;
             Assert.Equal(123, avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -62,8 +61,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<long>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, 123);
+            var bytes = avroSerializer.Serialize(testTopic, 123).Memory.Span;
             Assert.Equal(123, avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -74,8 +72,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<bool>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, true);
+            var bytes = avroSerializer.Serialize(testTopic, true).Memory.Span;
             Assert.Equal(true, avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -86,8 +83,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<string>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, "abc");
+            var bytes = avroSerializer.Serialize(testTopic, "abc").Memory.Span;
             Assert.Equal("abc", avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -98,8 +94,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<double>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, 123d);
+            var bytes = avroSerializer.Serialize(testTopic, 123d).Memory.Span;
             Assert.Equal(123d, avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -110,8 +105,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<float>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, 123f);
+            var bytes = avroSerializer.Serialize(testTopic, 123f).Memory.Span;
             Assert.Equal(123f, avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -122,8 +116,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<byte[]>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, new byte[] { 2, 3, 4 });
+            var bytes = avroSerializer.Serialize(testTopic, new byte[] { 2, 3, 4 }).Memory.Span;
             Assert.Equal(new byte[] { 2, 3, 4 }, avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -134,8 +127,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<Null>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, null);
+            var bytes = avroSerializer.Serialize(testTopic, null).Memory.Span;
             Assert.Null(avroDeserializer.Deserialize(testTopic, bytes, false));
         }
 
@@ -153,7 +145,7 @@ namespace Confluent.Kafka.Avro.UnitTests
             var deserializer = new AvroDeserializer<User>(schemaRegistryClient);
             deserializer.Configure(new Dictionary<string, object>(), false);
 
-            var bytes = serializer.Serialize("topic", user);
+            var bytes = serializer.Serialize("topic", user).Memory.Span;
             var result = deserializer.Deserialize("topic", bytes, false);
 
             Assert.Equal(user.name, result.name);
@@ -168,9 +160,8 @@ namespace Confluent.Kafka.Avro.UnitTests
             avroSerializer.Configure(new Dictionary<string, object>(), false);
             var avroDeserializer = new AvroDeserializer<int>(schemaRegistryClient);
             avroDeserializer.Configure(new Dictionary<string, object>(), false);
-            byte[] bytes;
-            bytes = avroSerializer.Serialize(testTopic, "Hello world");
-            Assert.Throws<global::Avro.AvroException>(() => avroDeserializer.Deserialize(testTopic, bytes, false));
+            var bytes = avroSerializer.Serialize(testTopic, "Hello world").Memory;
+            Assert.Throws<global::Avro.AvroException>(() => avroDeserializer.Deserialize(testTopic, bytes.Span, false));
         }
     }
 }

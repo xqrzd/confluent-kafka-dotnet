@@ -15,6 +15,7 @@
 // Refer to LICENSE for more information.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using Avro.Generic;
@@ -129,7 +130,7 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     <paramref name="data" /> serialized as a byte array.
         /// </returns>
-        public byte[] Serialize(string topic, T data)
+        public IMemoryOwner<byte> Serialize(string topic, T data)
         { 
             if (serializerImpl == null)
             {
@@ -138,7 +139,7 @@ namespace Confluent.Kafka.Serialization
                     : new SpecificSerializerImpl<T>(schemaRegistryClient, autoRegisterSchema, initialBufferSize, isKeySerializer);
             }
 
-            return serializerImpl.Serialize(topic, data);
+            return new ByteMemoryOwner(serializerImpl.Serialize(topic, data));
         }
 
 

@@ -15,6 +15,7 @@
 // Refer to LICENSE for more information.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 
@@ -37,7 +38,7 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     The System.Double value <paramref name="data" /> encoded as a byte array of length 4 (network byte order).
         /// </returns>
-        public byte[] Serialize(string topic, double data)
+        public IMemoryOwner<byte> Serialize(string topic, double data)
         {
             if (BitConverter.IsLittleEndian)
             {
@@ -53,12 +54,12 @@ namespace Confluent.Kafka.Serialization
                     result[2] = *p++;
                     result[1] = *p++;
                     result[0] = *p++;
-                    return result;
+                    return new ByteMemoryOwner(result);
                 }
             }
             else
             {
-                return BitConverter.GetBytes(data);
+                return new ByteMemoryOwner(BitConverter.GetBytes(data));
             }
         }
 

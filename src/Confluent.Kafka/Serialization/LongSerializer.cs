@@ -15,6 +15,7 @@
 // Refer to LICENSE for more information.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 
@@ -37,7 +38,7 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     The <see cref="System.Int64"/> value <paramref name="data" /> encoded as a byte array of length 8 (network byte order).
         /// </returns>
-        public byte[] Serialize(string topic, long data)
+        public IMemoryOwner<byte> Serialize(string topic, long data)
         {
             var result = new byte[8];
             result[0] = (byte)(data >> 56);
@@ -48,7 +49,7 @@ namespace Confluent.Kafka.Serialization
             result[5] = (byte)(data >> 16);
             result[6] = (byte)(data >> 8);
             result[7] = (byte)data;
-            return result;
+            return new ByteMemoryOwner(result);
         }
 
 

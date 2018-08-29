@@ -15,9 +15,10 @@
 // Refer to LICENSE for more information.
 
 using System;
-using System.Text;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 
 namespace Confluent.Kafka.Serialization
@@ -65,14 +66,14 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     <paramref name="data" /> encoded in a byte array (or null if <paramref name="data" /> is null).
         /// </returns>
-        public byte[] Serialize(string topic, string data)
+        public IMemoryOwner<byte> Serialize(string topic, string data)
         {
             if (data == null)
             {
                 return null;
             }
 
-            return encoding.GetBytes(data);
+            return new ByteMemoryOwner(encoding.GetBytes(data));
         }
 
 

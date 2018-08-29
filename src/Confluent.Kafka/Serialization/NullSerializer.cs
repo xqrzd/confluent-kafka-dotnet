@@ -15,6 +15,7 @@
 // Refer to LICENSE for more information.
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 
 
@@ -35,7 +36,7 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     null
         /// </returns>
-        public byte[] Serialize(string topic, Null data)
+        public IMemoryOwner<byte> Serialize(string topic, Null data)
         {
             return null;
         }

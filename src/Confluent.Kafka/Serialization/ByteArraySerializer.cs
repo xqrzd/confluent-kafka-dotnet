@@ -14,6 +14,7 @@
 //
 // Refer to LICENSE for more information.
 
+using System.Buffers;
 using System.Collections.Generic;
 
 
@@ -38,9 +39,9 @@ namespace Confluent.Kafka.Serialization
         /// <returns>
         ///     The System.Byte[] value <paramref name="data" /> encoded as a byte array. 
         /// </returns>
-        public byte[] Serialize(string topic, byte[] data)
+        public IMemoryOwner<byte> Serialize(string topic, byte[] data)
         {
-            return data;
+            return new ByteMemoryOwner(data);
         }
 
 
