@@ -83,7 +83,7 @@ namespace Confluent.Kafka.AvroClients
         /// <returns>
         ///     The deserialized <typeparamref name="T"/> value.
         /// </returns>
-        public async Task<T> Deserialize(ISchemaRegistryClient schemaRegistryClient, string topic, byte[] data, bool isKey)
+        public async Task<T> Deserialize(ISchemaRegistryClient schemaRegistryClient, string topic, ReadOnlyMemory<byte> data, bool isKey)
         {
             try
             {
@@ -94,6 +94,7 @@ namespace Confluent.Kafka.AvroClients
                         : new SpecificDeserializerImpl<T>(schemaRegistryClient);
                 }
 
+                // TODO: Could avoid another copy by changing this to ReadOnlyMemory<byte>.
                 return await deserializerImpl.Deserialize(topic, data.ToArray());
             }
             catch (AggregateException e)

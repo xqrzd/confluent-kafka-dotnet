@@ -17,6 +17,8 @@
 // Refer to LICENSE for more information.
 
 
+using System;
+
 namespace Confluent.Kafka
 {
     /// <summary>
@@ -52,5 +54,5 @@ namespace Confluent.Kafka
     /// <summary>
     ///     Represents a message stored in Kafka.
     /// </summary>
-    public class Message : Message<byte[], byte[]> {}
+    public class Message : Message<ReadOnlyMemory<byte>, ReadOnlyMemory<byte>> {}
 }

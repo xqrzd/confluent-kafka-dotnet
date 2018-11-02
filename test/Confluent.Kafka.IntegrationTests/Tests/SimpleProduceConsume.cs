@@ -69,8 +69,8 @@ namespace Confluent.Kafka.IntegrationTests
             consumer.Assign(new List<TopicPartitionOffset>() {dr.TopicPartitionOffset});
             var r = consumer.Consume(TimeSpan.FromSeconds(10));
             Assert.NotNull(r?.Message);
-            Assert.Equal(testString, r.Message.Value == null ? null : Encoding.UTF8.GetString(r.Message.Value, 0, r.Message.Value.Length));
-            Assert.Null(r.Message.Key);
+            Assert.Equal(testString, r.Message.Value.IsEmpty ? null : Encoding.UTF8.GetString(r.Message.Value.ToArray(), 0, r.Message.Value.Length));
+            Assert.True(r.Message.Key.IsEmpty);
             Assert.Equal(r.Message.Timestamp.Type, dr.Message.Timestamp.Type);
             Assert.Equal(r.Message.Timestamp.UnixTimestampMs, dr.Message.Timestamp.UnixTimestampMs);
         }

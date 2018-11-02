@@ -17,6 +17,8 @@
 // Refer to LICENSE for more information.
 
 
+using System;
+
 namespace Confluent.Kafka
 {
     /// <summary>
@@ -70,7 +72,7 @@ namespace Confluent.Kafka
         /// <summary>
         ///     The Kafka message Key.
         /// </summary>
-        public byte[] Key
+        public ReadOnlyMemory<byte> Key
         {
             get { return Message.Key; }
             set { Message.Key = value; }
@@ -79,7 +81,7 @@ namespace Confluent.Kafka
         /// <summary>
         ///     The Kafka message Value.
         /// </summary>
-        public byte[] Value
+        public ReadOnlyMemory<byte> Value
         {
             get { return Message.Value; }
             set { Message.Value = value; }

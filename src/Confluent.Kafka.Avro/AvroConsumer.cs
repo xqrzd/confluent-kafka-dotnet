@@ -134,10 +134,10 @@ namespace Confluent.Kafka.AvroClients
                         Headers = result.Headers,
                         Key = keySerdeType == SerdeType.Avro
                             ? await (GetOrCreateAvroDeserializer<TKey>()).Deserialize(schemaRegistryClient, result.Topic, result.Key, true)
-                            : GetDeserializer<TKey>()(result.Key, result.Key == null),
+                            : GetDeserializer<TKey>()(result.Key.Span, result.Key.IsEmpty),
                         Value = valueSerdeType == SerdeType.Avro
                             ? await (GetOrCreateAvroDeserializer<TValue>()).Deserialize(schemaRegistryClient, result.Topic, result.Value, false)
-                            : GetDeserializer<TValue>()(result.Value, result.Value == null)
+                            : GetDeserializer<TValue>()(result.Value.Span, result.Value.IsEmpty)
                     }
                 };
             }
@@ -184,10 +184,10 @@ namespace Confluent.Kafka.AvroClients
                         Headers = result.Headers,
                         Key = keySerdeType == SerdeType.Avro
                             ? await GetOrCreateAvroDeserializer<TKey>().Deserialize(schemaRegistryClient, result.Topic, result.Key, true)
-                            : GetDeserializer<TKey>()(result.Key, result.Key == null),
+                            : GetDeserializer<TKey>()(result.Key.Span, result.Key.IsEmpty),
                         Value = valueSerdeType == SerdeType.Avro
                             ? await GetOrCreateAvroDeserializer<TValue>().Deserialize(schemaRegistryClient, result.Topic, result.Value, false)
-                            : GetDeserializer<TValue>()(result.Value, result.Value == null)
+                            : GetDeserializer<TValue>()(result.Value.Span, result.Value.IsEmpty)
                     }
                 };
             }

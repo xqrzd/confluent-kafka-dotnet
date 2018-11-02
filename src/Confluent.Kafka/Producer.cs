@@ -38,7 +38,7 @@ namespace Confluent.Kafka
     /// <returns>
     ///     The serialized value.
     /// </returns>
-    public delegate byte[] Serializer<T>(T data);
+    public delegate byte[] Serializer<T>(T data); // TODO: Worth changing this to ReadOnlyMemory<byte>?
 
 
     /// <summary>
@@ -183,8 +183,8 @@ namespace Confluent.Kafka
 
         internal void ProduceImpl(
             string topic,
-            byte[] val, int valOffset, int valLength,
-            byte[] key, int keyOffset, int keyLength,
+            ReadOnlyMemory<byte> val,
+            ReadOnlyMemory<byte> key,
             Timestamp timestamp,
             Partition partition, 
             IEnumerable<Header> headers,
@@ -211,8 +211,8 @@ namespace Confluent.Kafka
 
                 var err = kafkaHandle.Produce(
                     topic,
-                    val, valOffset, valLength,
-                    key, keyOffset, keyLength,
+                    val,
+                    key,
                     partition.Value,
                     timestamp.UnixTimestampMs,
                     headers,
@@ -228,8 +228,8 @@ namespace Confluent.Kafka
             {
                 var err = kafkaHandle.Produce(
                     topic,
-                    val, valOffset, valLength,
-                    key, keyOffset, keyLength,
+                    val,
+                    key,
                     partition.Value,
                     timestamp.UnixTimestampMs,
                     headers,
@@ -639,8 +639,8 @@ namespace Confluent.Kafka
                 
                 ProduceImpl(
                     topicPartition.Topic, 
-                    valBytes, 0, valBytes == null ? 0 : valBytes.Length, 
-                    keyBytes, 0, keyBytes == null ? 0 : keyBytes.Length, 
+                    valBytes, 
+                    keyBytes, 
                     message.Timestamp, topicPartition.Partition, message.Headers, 
                     handler);
 
@@ -653,8 +653,8 @@ namespace Confluent.Kafka
                 
                 ProduceImpl(
                     topicPartition.Topic, 
-                    valBytes, 0, valBytes == null ? 0 : valBytes.Length, 
-                    keyBytes, 0, keyBytes == null ? 0 : keyBytes.Length, 
+                    valBytes, 
+                    keyBytes, 
                     message.Timestamp, topicPartition.Partition, message.Headers, 
                     null);
 
@@ -771,8 +771,8 @@ namespace Confluent.Kafka
                 
                 ProduceImpl(
                     topicPartition.Topic, 
-                    valBytes, 0, valBytes == null ? 0 : valBytes.Length, 
-                    keyBytes, 0, keyBytes == null ? 0 : keyBytes.Length, 
+                    valBytes, 
+                    keyBytes, 
                     message.Timestamp, topicPartition.Partition, message.Headers, 
                     handler);
 
@@ -785,8 +785,8 @@ namespace Confluent.Kafka
                 
                 ProduceImpl(
                     topicPartition.Topic, 
-                    valBytes, 0, valBytes == null ? 0 : valBytes.Length, 
-                    keyBytes, 0, keyBytes == null ? 0 : keyBytes.Length, 
+                    valBytes, 
+                    keyBytes, 
                     message.Timestamp, topicPartition.Partition, message.Headers, 
                     null);
 
@@ -824,8 +824,8 @@ namespace Confluent.Kafka
 
             ProduceImpl(
                 topicPartition.Topic,
-                valBytes, 0, valBytes == null ? 0 : valBytes.Length, 
-                keyBytes, 0, keyBytes == null ? 0 : keyBytes.Length, 
+                valBytes, 
+                keyBytes, 
                 message.Timestamp, topicPartition.Partition, 
                 message.Headers, 
                 new DeliveryHandlerShim_Action(
@@ -922,8 +922,8 @@ namespace Confluent.Kafka
 
             ProduceImpl(
                 topicPartition.Topic,
-                valBytes, 0, valBytes == null ? 0 : valBytes.Length, 
-                keyBytes, 0, keyBytes == null ? 0 : keyBytes.Length, 
+                valBytes, 
+                keyBytes, 
                 message.Timestamp, topicPartition.Partition, 
                 message.Headers, 
                 new TypedDeliveryHandlerShim_Action<TKey, TValue>(
@@ -1065,7 +1065,7 @@ namespace Confluent.Kafka
 
         private class TaskDeliveryHandlerShim : TaskCompletionSource<DeliveryReport>, IDeliveryHandler
         {
-            public TaskDeliveryHandlerShim(string topic, byte[] key, byte[] val)
+            public TaskDeliveryHandlerShim(string topic, ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> val)
 #if !NET45
                 : base(TaskCreationOptions.RunContinuationsAsynchronously)
 #endif
@@ -1077,9 +1077,9 @@ namespace Confluent.Kafka
 
             public string Topic;
 
-            public byte[] Key;
+            public ReadOnlyMemory<byte> Key;
 
-            public byte[] Value;
+            public ReadOnlyMemory<byte> Value;
 
             public void HandleDeliveryReport(Producer.UntypedDeliveryReport deliveryReport)
             {
@@ -1183,7 +1183,7 @@ namespace Confluent.Kafka
 
         private class DeliveryHandlerShim_Action : IDeliveryHandler
         {
-            public DeliveryHandlerShim_Action(string topic, byte[] key, byte[] val, Action<DeliveryReportResult> handler)
+            public DeliveryHandlerShim_Action(string topic, ReadOnlyMemory<byte> key, ReadOnlyMemory<byte> val, Action<DeliveryReportResult> handler)
             {
                 Topic = topic;
                 Key = key;
@@ -1193,9 +1193,9 @@ namespace Confluent.Kafka
 
             public string Topic;
 
-            public byte[] Key;
+            public ReadOnlyMemory<byte> Key;
 
-            public byte[] Value;
+            public ReadOnlyMemory<byte> Value;
 
             public Action<DeliveryReportResult> Handler;
 

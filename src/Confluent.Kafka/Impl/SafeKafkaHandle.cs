@@ -310,61 +310,35 @@ namespace Confluent.Kafka.Impl
             return headersPtr;
         }
 
-        internal ErrorCode Produce(
+        internal unsafe ErrorCode Produce(
             string topic, 
-            byte[] val, int valOffset, int valLength,
-            byte[] key, int keyOffset, int keyLength,
+            ReadOnlyMemory<byte> val,
+            ReadOnlyMemory<byte> key,
             int partition,
             long timestamp,
             IEnumerable<Header> headers,
             IntPtr opaque)
         {
-            var pValue = IntPtr.Zero;
-            var pKey = IntPtr.Zero;
-
-            var gchValue = default(GCHandle);
-            var gchKey = default(GCHandle);
-
-            if (val == null)
-            {
-                if (valOffset != 0 || valLength != 0)
-                {
-                    throw new ArgumentException("valOffset and valLength parameters must be 0 when producing null values.");
-                }
-            }
-            else
-            {
-                gchValue = GCHandle.Alloc(val, GCHandleType.Pinned);
-                pValue = Marshal.UnsafeAddrOfPinnedArrayElement(val, valOffset);
-            }
-
-            if (key == null)
-            {
-                if (keyOffset != 0 || keyLength != 0)
-                {
-                    throw new ArgumentException("keyOffset and keyLength parameters must be 0 when producing null key values.");
-                }
-            }
-            else
-            {
-                gchKey = GCHandle.Alloc(key, GCHandleType.Pinned);
-                pKey = Marshal.UnsafeAddrOfPinnedArrayElement(key, keyOffset);
-            }
-
             IntPtr headersPtr = marshalHeaders(headers);
 
             try
             {
-                var errorCode = Librdkafka.producev(
-                    handle,
-                    topic,
-                    partition,
-                    (IntPtr)MsgFlags.MSG_F_COPY,
-                    pValue, (UIntPtr)valLength,
-                    pKey, (UIntPtr)keyLength,
-                    timestamp,
-                    headersPtr,
-                    opaque);
+                ErrorCode errorCode;
+
+                using (var valHandle = val.Pin())
+                using (var keyHandle = key.Pin())
+                {
+                    errorCode = Librdkafka.producev(
+                        handle,
+                        topic,
+                        partition,
+                        (IntPtr)MsgFlags.MSG_F_COPY,
+                        (IntPtr)valHandle.Pointer, (UIntPtr)val.Length,
+                        (IntPtr)keyHandle.Pointer, (UIntPtr)key.Length,
+                        timestamp,
+                        headersPtr,
+                        opaque);
+                }
 
                 if (errorCode != ErrorCode.NoError)
                 {
@@ -383,18 +357,6 @@ namespace Confluent.Kafka.Impl
                     Librdkafka.headers_destroy(headersPtr);
                 }
                 throw;
-            }
-            finally
-            {
-                if (val != null)
-                {
-                    gchValue.Free();
-                }
-
-                if (key != null)
-                {
-                    gchKey.Free();
-                }
             }
         }
 
